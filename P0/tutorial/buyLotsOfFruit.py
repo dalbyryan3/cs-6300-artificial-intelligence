@@ -35,7 +35,13 @@ def buyLotsOfFruit(orderList):
     Returns cost of order
     """
     totalCost = 0.0
-    "*** YOUR CODE HERE ***"
+    for tup in orderList:
+        fruit = tup[0]
+        if not fruit in fruitPrices:
+            print("A fruit named {0} was not a key in the fruitPrices dictionary".format(fruit))
+            return None
+        numPounds = tup[1]
+        totalCost += numPounds * fruitPrices[fruit]
     return totalCost
 
 

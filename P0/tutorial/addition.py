@@ -19,6 +19,6 @@ Run python autograder.py
 
 def add(a, b):
     "Return the sum of a and b"
-    "*** YOUR CODE HERE ***"
-
-    return 0
+    sum = a + b
+    print("Passed a = {0} and b = {1}, returning a + b = {2}".format(a, b, sum))
+    return sum
