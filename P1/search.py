@@ -17,6 +17,7 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
+from xml.sax.handler import feature_string_interning
 import util
 
 class SearchProblem:
@@ -87,7 +88,40 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Stack()
+    fringe.push((problem.getStartState(), [], 0))
+    result = generalSearch(problem, fringe)
+    return result
+
+def generalSearch(problem, initial_fringe):
+    closed_states = set()
+    fringe = initial_fringe
+    while(True):
+        if fringe.isEmpty():
+            print("Fringe empty, no goal found")
+            return False
+        node = fringe.pop()
+        print(node)
+        node_state, actions_to_node, cost_to_node = node
+        if (problem.isGoalState(node_state)):
+            print("Found goal state")
+            print("Goal node state value: {0}".format(node_state))
+            print("Actions to node: {0}\nLength: {1}".format(actions_to_node, len(actions_to_node)))
+            print("Goal node total cost: {0}".format(cost_to_node))
+            return actions_to_node
+        if (node_state not in closed_states):
+            closed_states.add(node_state)
+            for successor in problem.getSuccessors(node_state):
+                successor_node_state, successor_action, successor_cost = successor
+
+                successor_actions_to_node = actions_to_node.copy()
+                successor_actions_to_node.append(successor_action)
+
+                successor_cost_to_node = cost_to_node
+                successor_cost_to_node += successor_cost
+
+                fringe.push((successor_node_state, successor_actions_to_node, successor_cost_to_node))
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
