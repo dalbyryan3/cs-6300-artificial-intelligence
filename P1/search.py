@@ -73,8 +73,8 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def generalSearch(problem, initial_fringe, push_with_priority=False):
-    closed_states = set()
+def generalSearch(problem, initial_fringe):
+    closed_states = set() # This restricts states to be hashable objects, could use different data structure if this is not desired 
     fringe = initial_fringe
     while(True):
         if fringe.isEmpty():
@@ -99,10 +99,7 @@ def generalSearch(problem, initial_fringe, push_with_priority=False):
                 successor_cost_to_node = cost_to_node
                 successor_cost_to_node += successor_cost
 
-                if push_with_priority:
-                    fringe.push((successor_node_state, successor_actions_to_node, successor_cost_to_node), successor_cost_to_node)
-                else:
-                    fringe.push((successor_node_state, successor_actions_to_node, successor_cost_to_node))
+                fringe.push((successor_node_state, successor_actions_to_node, successor_cost_to_node))
 
 def depthFirstSearch(problem):
     """
@@ -136,9 +133,9 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    initial_fringe = util.PriorityQueue()
-    initial_fringe.push((problem.getStartState(), [], 0), 0)
-    result = generalSearch(problem, initial_fringe, push_with_priority=True)
+    initial_fringe = util.PriorityQueueWithFunction(lambda x: x[2]) # The last element in the 3-tuple is the cost to node, this will be used as the priority for the element
+    initial_fringe.push((problem.getStartState(), [], 0))
+    result = generalSearch(problem, initial_fringe)
     return result
 
 def nullHeuristic(state, problem=None):
@@ -146,13 +143,15 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    # Use a PriorityQueueWithFunction, may have to update generalSearch
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    initial_fringe = util.PriorityQueueWithFunction(lambda x: (x[2]+heuristic(x[0], problem))) # The last element in the 3-tuple is the cost to node, this will be used as the priority for the element, then the heuristic will be added to it, taking in the first element of the 3-tuple which is the state
+    initial_fringe.push((problem.getStartState(), [], 0))
+    result = generalSearch(problem, initial_fringe)
+    return result
 
 
 # Abbreviations
