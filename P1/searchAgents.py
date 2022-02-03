@@ -487,8 +487,16 @@ def foodHeuristic(state, problem):
     if len(food_grid_list) == 0:
         return 0
 
-    food_distances = [util.manhattanDistance(position, food_locations) for food_locations in food_grid_list]
-    # food_distances = [euclideanDistance(position, food_locations) for food_locations in food_grid_list]
+    food_distances = [util.manhattanDistance(position, food_location) for food_location in food_grid_list]
+    # food_distances = [euclideanDistance(position, food_location) for food_location in food_grid_list]
+
+    ###
+    # If we assume that a cost of any action is always greater than or equal to 1 can use mazeDistance (or bfs/dfs) as a consistent heuristic and get 5/4 on autograder, although this defeats the purpose of using a heuristic and in computationally expensive
+
+    # food_distances = [mazeDistance(position, food_location, problem.startingGameState) for food_location in food_grid_list]
+    # food_distances = [len(search.ucs(PositionSearchProblem(problem.startingGameState, start=position, goal=food_location, warn=False, visualize=False))) for food_location in food_grid_list] # Assuming cost function always returns 1 then ucs is equivalent to bfs, would have to pass in a costFn here to have ucs perform differently, if costFn in reality is not always returning 1 then this may not be consistent since could overestimate, but if we assume that the cost is always a value greater than or equal to one (I think this is true for the setup of this problem) then bfs/ucs with a costFn returning 1 thus this is technically consistent. In the end though this is essentially just already solving the problem to the goal within the heuristic since we are getting the exact forward cost from the heuristic and is computationally very expensive and defeating the purpose of using a heuristic.
+    ###
+
     return max(food_distances)
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -520,7 +528,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        return search.uniformCostSearch(problem)
+        return search.bfs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -557,10 +565,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         "*** YOUR CODE HERE ***"
         return self.food[x][y]
-        # if len(self.food.asList() == 0):
-        #     return True
-        # else:
-        #     return False
         
 
 def mazeDistance(point1, point2, gameState):
