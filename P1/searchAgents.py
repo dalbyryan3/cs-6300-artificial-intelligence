@@ -34,11 +34,9 @@ description for details.
 Good luck and happy searching!
 """
 
-from turtle import position
 from game import Directions
 from game import Agent
 from game import Actions
-from searchTestClasses import CornerHeuristicSanity
 import util
 import time
 import search
