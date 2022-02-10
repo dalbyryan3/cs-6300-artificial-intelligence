@@ -1,2 +1,3 @@
 *.token
-*.pdf
+*/latex/*.pdf
+
