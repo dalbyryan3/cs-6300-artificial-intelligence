@@ -74,7 +74,56 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # print("successorGameState:") # This is the full game state 
+        # print(successorGameState) 
+        # print("newPos:") # This is the new position of pacman
+        # print(newPos)
+        # print("newFood:") # This is a boolean grid of the map where food is
+        # print(newFood)
+        # print(newFood.asList())
+        # print("newGhostStates:") # Like pacman state but for all ghosts stored in a collection
+        # print(newGhostStates[0])
+        # print("newScaredTimes:") # This is the time left for the ghosts to be scared run
+        # print(newScaredTimes)
+
+        def get_avg_food_distance_sum(food):
+            food_list = food.asList()
+            food_sum = 0
+            count = 0
+            for f in food_list:
+                food_sum += manhattanDistance(newPos, f)
+                count += 1
+            return food_sum/count if count > 0 else 0
+
+        def get_avg_ghost_distance_sum(ghosts):
+            ghost_sum = 0
+            count = 0
+            for g in ghosts:
+                ghost_sum += manhattanDistance(newPos, g.getPosition())
+                count += 1
+            return ghost_sum/count if count > 0 else 0
+
+        def are_all_scared(scared_times):
+            for s in scared_times:
+                if s == 0:
+                    return False
+            return True
+                
+        # print("start")
+        # print(get_avg_food_distance_sum(newFood))
+        # print(get_avg_ghost_distance_sum(newGhostStates))
+        # print(successorGameState.getScore())
+        # print("end")
+
+        game_score_w = 4
+        food_w = 4 
+        ghost_w = 1 
+        if are_all_scared(newScaredTimes):
+            game_score_w *= 10
+            food_w *= 10
+            ghost_w *= 0
+        evaluation = (game_score_w*successorGameState.getScore()) - (food_w*get_avg_food_distance_sum(newFood)) + (ghost_w*get_avg_ghost_distance_sum(newGhostStates))
+        return evaluation
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -135,7 +184,58 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        def get_next_agent_index_and_depth(state, agent_index, current_depth):
+            if agent_index == state.getNumAgents()-1: # We just expanded final agent 
+                next_agent_index = 0
+                next_depth = current_depth + 1
+            else:
+                next_agent_index = agent_index + 1
+                next_depth = current_depth
+            return next_agent_index, next_depth
+
+        # def get_best_value_and_action(action_to_value_dict, agent_index):
+        #     # Return best value and action for a given action to value dict in a tuple
+        #     is_max = True if agent_index==0 else False
+        #     best_action = max(action_to_value_dict, key=action_to_value_dict.get) if is_max else min(action_to_value_dict, key=action_to_value_dict.get)
+        #     return action_to_value_dict[best_action], best_action
+
+        def get_best_value_and_action(action_to_value_dict, agent_index):
+            # Return best value and action for a given action to value dict in a tuple
+            if agent_index == 0: # Is max
+                best_value = -float('inf')
+                best_action = ""
+                for action in action_to_value_dict:
+                    if action_to_value_dict[action] > best_value:
+                        best_value = action_to_value_dict[action]
+                        best_action = action
+            else: # Is min
+                best_value = float('inf')
+                best_action = ""
+                for action in action_to_value_dict:
+                    if action_to_value_dict[action] < best_value:
+                        best_value = action_to_value_dict[action]
+                        best_action = action
+            return best_value, best_action
+
+
+        def recursive_minimax(state, agent_index, depth):
+            if depth == self.depth: # At this point have completed current_depth number of turns (search plys) so should stop if we are at the set depth
+                return self.evaluationFunction(state), ""
+            legal_actions = state.getLegalActions(agent_index)
+            if len(legal_actions) == 0: # Terminal state
+                return self.evaluationFunction(state), ""
+            action_to_value_dict = {}
+            next_agent_index, next_depth = get_next_agent_index_and_depth(state, agent_index, depth)
+            for action in legal_actions:
+                next_game_state = state.generateSuccessor(agent_index, action)
+                action_to_value_dict[action], _ = recursive_minimax(next_game_state, next_agent_index, next_depth)
+            return get_best_value_and_action(action_to_value_dict, agent_index)
+        
+        minimax_value, minimax_action = recursive_minimax(gameState, 0, 0)
+
+        return minimax_action
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
