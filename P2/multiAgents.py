@@ -175,7 +175,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns the successor game state after an agent takes an action
 
         gameState.getNumAgents():
-        Returns the total number of agents in the game
+        Returns the total number of agents in the gam
 
         gameState.isWin():
         Returns whether or not the game state is a winning state
@@ -194,43 +194,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 next_depth = current_depth
             return next_agent_index, next_depth
 
-        # def get_best_value_and_action(action_to_value_dict, agent_index):
-        #     # Return best value and action for a given action to value dict in a tuple
-        #     is_max = True if agent_index==0 else False
-        #     best_action = max(action_to_value_dict, key=action_to_value_dict.get) if is_max else min(action_to_value_dict, key=action_to_value_dict.get)
-        #     return action_to_value_dict[best_action], best_action
-
-        def get_best_value_and_action(action_to_value_dict, agent_index):
-            # Return best value and action for a given action to value dict in a tuple
-            if agent_index == 0: # Is max
-                best_value = -float('inf')
-                best_action = ""
-                for action in action_to_value_dict:
-                    if action_to_value_dict[action] > best_value:
-                        best_value = action_to_value_dict[action]
-                        best_action = action
-            else: # Is min
-                best_value = float('inf')
-                best_action = ""
-                for action in action_to_value_dict:
-                    if action_to_value_dict[action] < best_value:
-                        best_value = action_to_value_dict[action]
-                        best_action = action
-            return best_value, best_action
-
-
         def recursive_minimax(state, agent_index, depth):
             if depth == self.depth: # At this point have completed current_depth number of turns (search plys) so should stop if we are at the set depth
                 return self.evaluationFunction(state), ""
             legal_actions = state.getLegalActions(agent_index)
+
             if len(legal_actions) == 0: # Terminal state
                 return self.evaluationFunction(state), ""
-            action_to_value_dict = {}
+
+            is_max = (agent_index == 0) # If our current level is a max node, otherwise we are at a min node
+            best_value = -float('inf') if is_max else float('inf')
+            best_action = ""
             next_agent_index, next_depth = get_next_agent_index_and_depth(state, agent_index, depth)
             for action in legal_actions:
                 next_game_state = state.generateSuccessor(agent_index, action)
-                action_to_value_dict[action], _ = recursive_minimax(next_game_state, next_agent_index, next_depth)
-            return get_best_value_and_action(action_to_value_dict, agent_index)
+                value, _ = recursive_minimax(next_game_state, next_agent_index, next_depth)
+                if ((is_max) and (value > best_value)) or ((not is_max) and (value < best_value)):
+                    best_value = value 
+                    best_action = action
+            return best_value, best_action
         
         minimax_value, minimax_action = recursive_minimax(gameState, 0, 0)
 
@@ -247,7 +229,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
