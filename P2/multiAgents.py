@@ -229,6 +229,50 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        def get_next_agent_index_and_depth(state, agent_index, current_depth):
+            if agent_index == state.getNumAgents()-1: # We just expanded final agent 
+                next_agent_index = 0
+                next_depth = current_depth + 1
+            else:
+                next_agent_index = agent_index + 1
+                next_depth = current_depth
+            return next_agent_index, next_depth
+
+        def recursive_minimax(state, agent_index, depth, alpha, beta):
+            if depth == self.depth: # At this point have completed current_depth number of turns (search plys) so should stop if we are at the set depth
+                return self.evaluationFunction(state), "", alpha, beta
+            legal_actions = state.getLegalActions(agent_index)
+
+            if len(legal_actions) == 0: # Terminal state
+                return self.evaluationFunction(state), "", alpha, beta
+
+            is_max = (agent_index == 0) # If our current level is a max node, otherwise we are at a min node
+            best_value = -float('inf') if is_max else float('inf')
+            best_action = ""
+            next_agent_index, next_depth = get_next_agent_index_and_depth(state, agent_index, depth)
+            for action in legal_actions:
+                next_game_state = state.generateSuccessor(agent_index, action)
+                value, _, _, _ = recursive_minimax(next_game_state, next_agent_index, next_depth, alpha, beta)
+                if is_max:
+                    if (value > best_value):
+                        best_value = value
+                        best_action = action
+                    if (best_value > beta):
+                        return best_value, best_action, alpha, beta
+                    alpha = best_value if best_value > alpha else alpha
+                else:
+                    if (value < best_value):
+                        best_value = value
+                        best_action = action
+                    if (best_value < alpha):
+                        return best_value, best_action, alpha, beta
+                    beta = best_value if best_value < beta else beta
+
+            return best_value, best_action, alpha, beta
+        
+        minimax_value, minimax_action, _, _ = recursive_minimax(gameState, 0, 0, -float('inf'), float('inf'))
+
+        return minimax_action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
