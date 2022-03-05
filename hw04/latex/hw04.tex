@@ -1,0 +1,119 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\begin{document}
+
+\begin{center}
+{\bf CS 6300} \hfill {\large\bf HW04: Utility and Value Iteration} \hfill {\bf Due February 24, 2022}
+\end{center}
+
+\section{Value Iteration}
+
+You decide to go to Las Vegas for spring break, to take in some shows
+and play a little blackjack.  Casino hotels typically offer very cheap
+buffets, and so you have two possible actions: Eat Buffet or Play
+Blackjack.  You start out Poor and Hungry, and would like to leave the
+casino Rich and Full.  If you Play while you are Full you are more
+likely to become Rich, but if you are Poor you may have a hard time
+becoming Full on your budget.  We can model your decision making
+process as the following MDP:
+
+\begin{flushleft}
+\begin{tabular}{ll}
+State Space & \{PoorHungry, PoorFull, RichHungry, RichFull\} \\
+Actions     & \{Eat, Play\} \\
+Initial State &  PoorHungry \\
+Terminal State & RichFull 
+\end{tabular}
+\end{flushleft}
+
+\begin{center}
+\begin{tabular}{cc}
+\begin{tabular}{|l|l|l|l|} \hline
+$s$        & $a$  & $s'$       & $T(s,a,s')$ \\ \hline
+PoorHungry & Play & PoorHungry & 0.8 \\ \hline
+PoorHungry & Play & RichHungry & 0.2 \\ \hline
+PoorHungry & Eat  & PoorHungry & 0.8 \\ \hline
+PoorHungry & Eat  & PoorFull   & 0.2 \\ \hline
+PoorFull   & Play & PoorFull   & 0.5 \\ \hline
+PoorFull   & Play & RichFull   & 0.5 \\ \hline
+RichHungry & Eat  & RichHungry & 0.2 \\ \hline
+RichHungry & Eat  &RichFull    & 0.8 \\ \hline
+\end{tabular} &
+\begin{tabular}{|l|l|}\hline
+$s'$       & $R(s')$ \\ \hline
+PoorHungry & -1 \\  \hline
+PoorFull   &  1 \\ \hline
+RichHungry &  0 \\ \hline
+RichFull   &  5 \\ \hline
+\end{tabular} \\
+Transition Model & Rewards
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+
+\item Perform 3 iterations of Value Iteration. Fill out tables of both
+  the Q-values and the Values.  Assume $\gamma = 1$.
+
+\item Assuming that we are acting for three time steps, what is the
+  optimal action to take from the starting state? Justify your answer.
+
+\end{enumerate}
+
+\clearpage
+
+\section{Policy Iteration (30pts)}
+
+You didn't do so well playing blackjack, so you decide to play the
+card game of high-low.  High-low is played with an infinite deck whose
+only cards are 2, 3, and 4 in equal proportion.  You start with one of
+the cards showing, and say either {\it high} or {\it low}.  Then a new
+card is flipped, and you compare the value of the new card to that of
+the old card.
+
+\begin{itemize}
+
+\item If you are right, you get the value of the new card.
+
+\item If the new card has the same value, you don't get any points.
+
+\item If you are wrong, the game is done.
+
+\end{itemize}
+
+\noindent
+If you are not done, the new card then becomes the reference card for
+drawing the next new card.  You accumulate points as above until you
+are wrong and the game ends.
+
+\begin{enumerate}
+
+\item Formulate high-low as an MDP, by listing the states, actions,
+  transition rewards, and transition probabilities.  
+
+\item You will be doing one iteration of policy iteration.  Assume the
+  initial policy $\pi_0(s) = high$.
+
+  \begin{enumerate}
+
+ \item Perform policy evaluation to solve for the utility values
+  $V^{\pi_0}(s)$ for the appropriate states $s$.  Please solve these
+  equations analytically.
+
+  \item Perform policy improvement to find the next policy $\pi_1(s)$.
+
+  \end{enumerate}
+
+\end{enumerate}
+
+\end{document}

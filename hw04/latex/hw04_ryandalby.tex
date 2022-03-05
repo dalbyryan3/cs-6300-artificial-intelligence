@@ -1,0 +1,301 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\begin{document}
+
+\begin{center}
+{\bf CS 6300} \hfill {\large\bf HW04: Utility and Value Iteration} \hfill {\bf Ryan Dalby} \hfill {\bf Due February 24, 2022}
+\end{center}
+
+\section{Value Iteration}
+
+You decide to go to Las Vegas for spring break, to take in some shows
+and play a little blackjack.  Casino hotels typically offer very cheap
+buffets, and so you have two possible actions: Eat Buffet or Play
+Blackjack.  You start out Poor and Hungry, and would like to leave the
+casino Rich and Full.  If you Play while you are Full you are more
+likely to become Rich, but if you are Poor you may have a hard time
+becoming Full on your budget.  We can model your decision making
+process as the following MDP:
+
+\begin{flushleft}
+\begin{tabular}{ll}
+State Space & \{PoorHungry, PoorFull, RichHungry, RichFull\}\\
+Actions     & \{Eat, Play\} \\
+Initial State &  PoorHungry \\
+Terminal State & RichFull 
+\end{tabular}
+\end{flushleft}
+
+\begin{center}
+\begin{tabular}{cc}
+\begin{tabular}{|l|l|l|l|} \hline
+$s$        & $a$  & $s'$       & $T(s,a,s')$ \\ \hline
+PoorHungry & Play & PoorHungry & 0.8 \\ \hline
+PoorHungry & Play & RichHungry & 0.2 \\ \hline
+PoorHungry & Eat  & PoorHungry & 0.8 \\ \hline
+PoorHungry & Eat  & PoorFull   & 0.2 \\ \hline
+PoorFull   & Play & PoorFull   & 0.5 \\ \hline
+PoorFull   & Play & RichFull   & 0.5 \\ \hline
+RichHungry & Eat  & RichHungry & 0.2 \\ \hline
+RichHungry & Eat  &RichFull    & 0.8 \\ \hline
+\end{tabular} &
+\begin{tabular}{|l|l|}\hline
+$s'$       & $R(s')$ \\ \hline
+PoorHungry & -1 \\  \hline
+PoorFull   &  1 \\ \hline
+RichHungry &  0 \\ \hline
+RichFull   &  5 \\ \hline
+\end{tabular} \\
+Transition Model & Rewards
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+
+\item Perform 3 iterations of Value Iteration. Fill out tables of both
+  the Q-values and the Values.  Assume $\gamma = 1$.
+
+  Note that all Values or Q-values whose state or state-value parameters are not specified in the table are 0.
+  Also note the following notation shorthand:
+  \begin{flushleft}
+  \begin{tabular}{ll}
+  State Space & \{PoorHungry, PoorFull, RichHungry, RichFull\} = \{PH, PF, RH, RF\}\\
+  Actions     & \{Eat, Play\} = \{E, P\}\\
+  Initial State &  PoorHungry = PH\\
+  Terminal State & RichFull = RF 
+  \end{tabular}
+  \end{flushleft}
+
+  \begin{flushleft}
+    \begin{tabular}{ll}
+    \begin{tabular}{|r|r|r|r|r|} \hline
+    $i$ & $Q_i(PH,P)$ & $Q_i(PH,E)$ & $Q_i(PF,P)$ & $Q_i(RH,E)$\\ \hline\hline
+    0   & 0 & 0 & 0 & 0 \\ \hline
+    1   & -0.8 & -0.6 & 3.0 & 4.0 \\ \hline
+    2   & -0.48 & -0.48 & 4.5 & 4.8 \\ \hline
+    3   & -0.224 & -0.084 & 5.25 & 4.96 \\ \hline
+    \end{tabular}
+    \\
+     &            \\
+    \begin{tabular}{|r|r|r|r|r|} \hline
+    $i$ & $V_i(PH)$ & $V_i(PF)$ & $V_i(RH)$ \\ \hline\hline
+    0   & 0 & 0 & 0 \\ \hline
+    1   & -0.6 & 3.0 & 4.0 \\ \hline
+    2   & -0.48 & 4.5 & 4.8 \\ \hline
+    3   & -0.084 & 5.25 & 4.96 \\ \hline
+    \end{tabular} & 
+    \end{tabular}
+  \end{flushleft}
+
+  Using (assuming $\gamma = 1$):
+  \begin{eqnarray*}
+  Q^*_{i+1}(s,a) &=& \sum_{s'} T(s,a,s') [R(s,a,s') + V^*_i(s')] \\[.1in]
+  V^*_{i+1}(s)   &=& \max_{a_i} Q^*_{i+1}(s,a)
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    Q_1(PH, P) &=& 0.8[-1 + 0] + 0.2[0 + 0] = -0.8 \\[.1in]
+    Q_1(PH, E) &=& 0.8[-1 + 0] + 0.2[1 + 0] = -0.6 \\[.1in]
+    Q_1(PF, P) &=& 0.5[1 + 0] + 0.5[5 + 0] = 3.0 \\[.1in]
+    Q_1(RH, E) &=& 0.2[0 + 0] + 0.8[5 + 0] = 4.0 \\[.1in]
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    V_1(PH) &=& -0.6 \\[.1in]
+    V_1(PF) &=& 3.0 \\[.1in]
+    V_1(RH) &=& 4.0 \\[.1in]
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    Q_2(PH, P) &=& 0.8[-1 + -0.6] + 0.2[0 + 4.0] = -0.48 \\[.1in]
+    Q_2(PH, E) &=& 0.8[-1 + -0.6] + 0.2[1 + 3.0] = -0.48 \\[.1in]
+    Q_2(PF, P) &=& 0.5[1 + 3.0] + 0.5[5 + 0] = 4.5 \\[.1in]
+    Q_2(RH, E) &=& 0.2[0 + 4.0] + 0.8[5 + 0] = 4.8 \\[.1in]
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    V_2(PH) &=& -0.48 \\[.1in]
+    V_2(PF) &=& 4.5 \\[.1in]
+    V_2(RH) &=& 4.8 \\[.1in]
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    Q_3(PH, P) &=& 0.8[-1 + -0.48] + 0.2[0 + 4.8] = -0.224 \\[.1in]
+    Q_3(PH, E) &=& 0.8[-1 + -0.48] + 0.2[1 + 4.5] = -0.084 \\[.1in]
+    Q_3(PF, P) &=& 0.5[1 + 4.5] + 0.5[5 + 0] = 5.25 \\[.1in]
+    Q_3(RH, E) &=& 0.2[0 + 4.8] + 0.8[5 + 0] = 4.96 \\[.1in]
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    V_3(PH) &=& -0.084 \\[.1in]
+    V_3(PF) &=& 5.25 \\[.1in]
+    V_3(RH) &=& 4.96 \\[.1in]
+  \end{eqnarray*}
+
+\item Assuming that we are acting for three time steps, what is the
+  optimal action to take from the starting state? Justify your answer.
+
+Using (assuming $\gamma = 1$):
+
+\begin{eqnarray*}
+\pi^*_i(PH) &=& \hbox{arg} \max_a \sum_{s'} T(PH,a,s') [R(PH,a,s') + V^*_i(s')] \\[.1in]
+\end{eqnarray*}
+
+The optimal policy from the start state given three time steps is Eat (E).
+
+This is because:
+\begin{eqnarray*}
+  \pi^*_3(PH) &=& \hbox{arg} \max_{a \in \{P, E\}} \left\{
+               \begin{array}{l}
+                0.8[-1+0.084] + 0.2[0 + 4.96] = 0.1248 (P)
+                \\[.1in]
+                0.8[-1+0.084] + 0.2[0 + 5.25] = 0.1828 (E)
+               \end{array} \right. \\[.1in]
+  \pi^*_3(PH) &=& E 
+\end{eqnarray*}
+
+
+
+\end{enumerate}
+
+\clearpage
+
+\section{Policy Iteration (30pts)}
+
+You didn't do so well playing blackjack, so you decide to play the
+card game of high-low.  High-low is played with an infinite deck whose
+only cards are 2, 3, and 4 in equal proportion.  You start with one of
+the cards showing, and say either {\it high} or {\it low}.  Then a new
+card is flipped, and you compare the value of the new card to that of
+the old card.
+
+\begin{itemize}
+
+\item If you are right, you get the value of the new card.
+
+\item If the new card has the same value, you don't get any points.
+
+\item If you are wrong, the game is done.
+
+\end{itemize}
+
+\noindent
+If you are not done, the new card then becomes the reference card for
+drawing the next new card.  You accumulate points as above until you
+are wrong and the game ends.
+
+\begin{enumerate}
+
+\item Formulate high-low as an MDP, by listing the states, actions,
+  transition rewards, and transition probabilities.  
+
+  \begin{flushleft}
+  \begin{tabular}{ll}
+  State Space & \{2, 3, 4, F\}\\
+  Actions     & \{High, Low\} = \{H, L\} \\
+  Initial State &  $s_0 \in $ \{2, 3, 4\} \\
+  Terminal State & F 
+  \end{tabular}
+  \end{flushleft}
+
+  \begin{center}
+  \begin{tabular}{cc}
+  \begin{tabular}{|l|l|l|l|l|} \hline
+  $s$        & $a$  & $s'$       & $T(s,a,s')$ & $R(s,a,s')$ \\ \hline
+  2 & H & F & $\nicefrac{1}{3}$ & 0 \\ \hline
+  2 & H & 3 & $\nicefrac{1}{3}$ & 3 \\ \hline
+  2 & H & 4 & $\nicefrac{1}{3}$ & 4 \\ \hline
+  2 & L & F & 1 & 0 \\ \hline
+  3 & H & F & $\nicefrac{2}{3}$ & 0\\ \hline
+  3 & H & 4 & $\nicefrac{1}{3}$ & 4 \\ \hline
+  3 & L & 2 & $\nicefrac{1}{3}$ & 2 \\ \hline
+  3 & L & F & $\nicefrac{2}{3}$ & 0 \\ \hline
+  4 & H & F & 1 & 0 \\ \hline
+  4 & L & 2 & $\nicefrac{1}{3}$ & 2 \\ \hline
+  4 & L & 3 & $\nicefrac{1}{3}$ & 3 \\ \hline
+  4 & L & F & $\nicefrac{1}{3}$ & 0 \\ \hline
+  \end{tabular} \\
+  Transition Model and Rewards
+  \end{tabular}
+  \end{center}
+  
+
+\item You will be doing one iteration of policy iteration.  Assume the
+  initial policy $\pi_0(s) = high$.
+
+  Note: Since not specified, assuming $\gamma = 1$.
+
+  \begin{enumerate}
+
+ \item Perform policy evaluation to solve for the utility values
+  $V^{\pi_0}(s)$ for the appropriate states $s$.  Please solve these
+  equations analytically.
+
+  Using (assuming $\gamma = 1$):
+  \begin{eqnarray*}
+  V^{\pi_0}(s) &=& \sum_{s'} T(s,\pi_0(s),s') [R(s,\pi_0(s),s') + V^{\pi_0}(s')] = \sum_{s'} T(s,H,s') [R(s,H,s') + V^{\pi_0}(s')]
+  \end{eqnarray*}
+
+  We get equations (Note since $F$ is a terminal state $V^{\pi_0}(F)=0$): 
+  \begin{eqnarray*}
+  V^{\pi_0}(2) &=& \frac{1}{3}[0 + V^{\pi_0}(F)] + \frac{1}{3}[3 + V^{\pi_0}(3)] + \frac{1}{3}[4 + V^{\pi_0}(4)] \\[.1in]
+  V^{\pi_0}(3) &=& \frac{2}{3}[0 + V^{\pi_0}(F)] + \frac{1}{3}[4 + V^{\pi_0}(4)] \\[.1in]
+  V^{\pi_0}(4) &=& 1[0 + V^{\pi_0}(F)] \\[.1in]
+  V^{\pi_0}(F) &=& 0 \\[.1in]
+  \end{eqnarray*}
+
+  Thus algebraically solving for each value gives:
+  \begin{eqnarray*}
+  V^{\pi_0}(2) &=& \frac{25}{9}\\[.1in]
+  V^{\pi_0}(3) &=& \frac{4}{3} \\[.1in]
+  V^{\pi_0}(4) &=& 0 \\[.1in]
+  V^{\pi_0}(F) &=& 0 \\[.1in]
+  \end{eqnarray*}
+
+  \item Perform policy improvement to find the next policy $\pi_1(s)$.
+
+  Using (assuming $\gamma = 1$):
+  \begin{eqnarray*}
+  \pi_{1}(s)     &=& \hbox{arg} \max_a \sum_{s'} T(s,a,s') [R(s,a,s') + V^{\pi_0}(s')] 
+  \end{eqnarray*}
+
+  \begin{eqnarray*}
+    \pi_1(2) &=& \hbox{arg} \max_{a \in \{H, L\}} \left\{
+                \begin{array}{l}
+                  \frac{1}{3}[0 + 0] + \frac{1}{3}[3 + \frac{4}{3}] + \frac{1}{3}[4 + 0] = \frac{25}{9} \approx 2.78 (H)
+                  \\[.1in]
+                  1[0 + 0] = 0 (L)
+                \end{array} \right. \\[.1in]
+    \pi_1(3) &=& \hbox{arg} \max_{a \in \{H, L\}} \left\{
+                \begin{array}{l}
+                  \frac{2}{3}[0 + 0] + \frac{1}{3}[4 + 0] = \frac{4}{3} \approx 1.33 (H)
+                  \\[.1in]
+                  \frac{1}{3}[2 + \frac{25}{9}] + \frac{2}{3}[0 + 0] = \frac{43}{27} \approx 1.59 (L)
+                \end{array} \right. \\[.1in]
+    \pi_1(4) &=& \hbox{arg} \max_{a \in \{H, L\}} \left\{
+                \begin{array}{l}
+                  1[0 + 0] = 0 (H)
+                  \\[.1in]
+                  \frac{1}{3}[2 + \frac{25}{9}] + \frac{1}{3}[3 + \frac{4}{3}] + \frac{1}{3}[0 + 0] = \frac{82}{27} \approx 3.04 (L)
+                \end{array} \right. \\[.1in]
+    \pi_1(2) &=& H \\[.1in]
+    \pi_1(3) &=& L \\[.1in]
+    \pi_1(4) &=& L
+  \end{eqnarray*}
+
+  \end{enumerate}
+
+\end{enumerate}
+
+\end{document}

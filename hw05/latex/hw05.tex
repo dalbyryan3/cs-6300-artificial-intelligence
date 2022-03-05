@@ -1,0 +1,61 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\begin{document}
+
+\begin{center}
+{\bf CS 6300} \hfill {\large\bf HW05: TD and Q Learning} \hfill {\bf Due March 3, 2022}
+\end{center}
+
+\noindent
+Please use the \LaTeX\ template to produce your writeups. See the
+Homework Assignments page on the class website for details.  Hand in
+via gradescope.
+
+Jennifer is currently finishing up in college and is trying to decide
+what she wants to do with the rest of her life.  She assumes her
+options can be modeled as an MDP, with a discount $\gamma=1/2$.  At
+each point in her life she can choose to either continue in school
+(action $x$) or try to get a job (action $y$).  Her three states are
+{\bf C}ollege, {\bf G}rad School and {\bf J}ob.  {\bf J} is a terminal
+state.
+
+Suppose Jennifer doesn't actually know the MDP model.  Instead, she
+watched three of her older siblings go through life.  They exhibited
+the following episodes.
+
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+{\bf Sibling 1} & {\bf Sibling 2} & {\bf Sibling 3} \\ \hline
+    C, x, -200 & C, x, -400 & C, x, -400 \\
+    C, x, -200 & G, x,  100 & G, x,  100 \\
+    C, y,  400 & G, x,  100 & G, x,  100 \\
+    J          & G, y, 1000 & G, x,  200 \\
+               & J          & J          \\ \hline
+\end{tabular}
+\end{center}
+
+  \begin{enumerate}
+
+  \item What are the transition probabilities and rewards that you can
+    know about?
+
+  \item Find the values $V(s)$ using direct estimation.
+
+  \item Use TD Learning instead to find estimates of the values,
+    assuming $\alpha=1/2^{n-1}$, where $n$ is the sibling number.
+
+  \item Use Q learning instead, and extract the estimated optimal policy.
+
+  \end{enumerate}
+
+\end{document}
