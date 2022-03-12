@@ -62,7 +62,28 @@ class ValueIterationAgent(ValueEstimationAgent):
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-
+        for i in range(self.iterations):
+            next_values = self.values.copy()
+            # print('-----BEGIN ITER: {0}-----'.format(i))
+            for state in self.mdp.getStates():
+                # print('Current state: {0} (isTerminal={1})'.format(state, self.mdp.isTerminal(state)))
+                actions_from_state = self.mdp.getPossibleActions(state)
+                max_q_value = -float('inf')
+                if (self.mdp.isTerminal(state) or (not len(actions_from_state) > 0)):
+                    # print('At terminal state or no actions from state, max_q_value is 0')
+                    max_q_value = 0
+                else:
+                    for action in actions_from_state:
+                        q_value = self.computeQValueFromValues(state, action)
+                        # print('q_value:{0}\ncurrent max_q_value:{1}'.format(q_value, max_q_value))
+                        if q_value > max_q_value:
+                            max_q_value = q_value
+                            # print('max_q_value is updated')
+                    # print('\n\n')
+                next_values[state] = max_q_value
+            # Update backup (self.values) with next values computed from static full backup
+            self.values = next_values
+            # print('-----END ITER {0}-----'.format(i))
 
     def getValue(self, state):
         """
@@ -77,7 +98,21 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # A terminal state has a q-value of 0 (there are no actions to be taken)
+        # if self.mdp.isTerminal(state):
+        #     return 0
+
+        # This may or may not be correct, does this get used in runValueIteration or is it seperate? 
+        next_states_and_probs_list = self.mdp.getTransitionStatesAndProbs(state, action)
+
+        # The q_value is 0 if there are no next states (this covers both the terminal case and if there are no actions in a state, still will check if terminal initially so no other calls to self.mdp have to be made)
+        q_value = 0
+
+        # Sum over all s' fro a given s and a
+        for next_state, next_state_prob in next_states_and_probs_list:
+            q_value += next_state_prob * (self.mdp.getReward(state, action, next_state) + self.discount * self.getValue(next_state))
+
+        return q_value
 
     def computeActionFromValues(self, state):
         """
@@ -89,7 +124,20 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        actions_from_state = self.mdp.getPossibleActions(state)
+        max_q_value = -float('inf')
+        best_action = None
+        if (self.mdp.isTerminal(state) or (not len(actions_from_state) > 0)):
+            max_q_value = 0
+        else:
+            for action in actions_from_state:
+                q_value = self.computeQValueFromValues(state, action)
+                if q_value > max_q_value:
+                    max_q_value = q_value
+                    best_action = action
+        return best_action
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
