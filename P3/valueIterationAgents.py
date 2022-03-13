@@ -62,7 +62,7 @@ class ValueIterationAgent(ValueEstimationAgent):
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-        for i in range(self.iterations):
+        for idx in range(self.iterations):
             next_values = self.values.copy()
             # print('-----BEGIN ITER: {0}-----'.format(i))
             for state in self.mdp.getStates():
@@ -178,6 +178,21 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        # Do note that runValueIteration for all value iteration agents and computeActionFromValues could be refactored to all use a single method
+        for idx in range(self.iterations):
+            state_list = self.mdp.getStates()
+            state_idx = idx % len(state_list)
+            state = state_list[state_idx]
+            actions_from_state = self.mdp.getPossibleActions(state)
+            max_q_value = -float('inf')
+            if (self.mdp.isTerminal(state) or (not len(actions_from_state) > 0)):
+                max_q_value = 0
+            else:
+                for action in actions_from_state:
+                    q_value = self.computeQValueFromValues(state, action)
+                    if q_value > max_q_value:
+                        max_q_value = q_value
+            self.values[state] = max_q_value
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
@@ -198,4 +213,54 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        def compute_diff(state):
+            q_values = [self.getQValue(state, action) for action in self.mdp.getPossibleActions(state)]
+            diff = abs(self.getValue(state) - max(q_values))
+            return diff
+
+        state_list = self.mdp.getStates()
+
+        # Compute predecessors of all states
+        predecessor_dict = {}
+        for state in state_list:
+            for action in self.mdp.getPossibleActions(state):
+                for next_state, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+                    if not prob > 0:
+                        continue
+                    if next_state not in predecessor_dict:
+                        predecessor_dict[next_state] = set()
+                    predecessor_dict[next_state].add(state)
+        
+        print('predecessor_dict is {0}'.format(predecessor_dict))
+
+        # Initialize priority queue 
+        priority_queue = util.PriorityQueue()
+
+        for state in state_list:
+            if self.mdp.isTerminal(state):
+                continue
+            diff = compute_diff(state) 
+            priority_queue.update(state, -diff)
+
+        for idx in range(self.iterations):
+            if priority_queue.isEmpty():
+                return
+            state = priority_queue.pop()
+            if not self.mdp.isTerminal(state):
+                # Update value of this state if not terminal state
+                actions_from_state = self.mdp.getPossibleActions(state)
+                max_q_value = -float('inf')
+                if not len(actions_from_state) > 0:
+                    max_q_value = 0
+                else:
+                    for action in actions_from_state:
+                        q_value = self.computeQValueFromValues(state, action)
+                        if q_value > max_q_value:
+                            max_q_value = q_value
+                self.values[state] = max_q_value
+            for predecessor in predecessor_dict[state]:
+                diff = compute_diff(predecessor)
+                if diff > self.theta:
+                    priority_queue.update(predecessor, -diff)
+            
 
