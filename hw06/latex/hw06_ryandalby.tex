@@ -1,0 +1,146 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{amsmath}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\begin{document}
+
+\begin{center} 
+{\bf CS 6300} \hfill {\large\bf HW06: Functional Approximation} \hfill {\bf Ryan Dalby} \hfill {\bf Due March 22, 2022}
+\end{center}
+
+\noindent
+Please use the \LaTeX\ template to produce your writeups. See the
+Homework Assignments page on the class website for details.  Hand in
+through gradescope.
+
+\section{Functional Approximation}
+
+For the following gridworld problems, the agent can take the actions
+N, S, E, W, which move the agent one square in the respective
+directions. There is no noise, so these actions always take the agent
+in the direction attempted, unless that direction would lead off the
+grid or into a blocked (grey) square, in which case the action does
+nothing. The boxed +1 squares also permit the action X which causes
+the agent to exits the grid and enter the terminal state. The reward
+for all transitions are zero, except the exit transition, which has
+reward +1. Assume a discount of 0.5.
+
+\begin{center}
+\includegraphics[width=5in]{images/3grid_ryandalby.png}
+\end{center}
+
+\begin{enumerate}
+
+\item Fill in the optimal values for grid (A) (hint: this should require very little calculation).
+
+  See grid (A) above.
+
+\item  Specify the optimal policy for grid (B) by placing an arrow in each empty square.
+
+  See grid (B) above.
+
+\vspace{0.25in}
+
+  Imagine we have a set of real-valued features $f_i(s)$ for each
+  non-terminal state $s = (x, y)$, and we wish to approximate the
+  optimal utility values $V^*(s)$ by $V(s) = \sum_i w_i \cdot f_i(s)$
+  (linear feature-based approximation).
+
+\item If our features are $f_1(x, y) = x$ and $f_2(x, y) = y$, give
+  values of $w_1$ and $w_2$ for which a one-step look-ahead policy extracted
+  from $V$ will be optimal in grid (A).
+
+  This gives $V(s) = w_1 x + w_2 y$.
+
+  Thus for each state $s = (x, y)$: 
+  \begin{itemize}
+    \item (0,0) = $0$
+    \item (1,0) = $w_1$
+    \item (0,1) = $w_2$
+    \item (2,0) = $2 w_1$
+    \item (1,1) = $w_1 + w_2$
+    \item (0,2) = $2 w_2$
+    \item (2,1) = $2 w_1 + w_2$
+    \item (1,2) = $w_1 + 2 w_2$
+    \item (2,2) = $2 w_1 + 2 w_2$
+  \end{itemize}
+
+  Weight values of $w_1 = w_2$ such that $w_1 = w_2 > 0$ will give values that when extracted using one-step look-ahead policy extraction the policy is optimal in grid (A).
+
+  (Note that since the block with the boxed +1 is not considered a terminal state (this block just permits a move to the terminal state which I assume will always be chosen over other actions) then there are no upper bounds necessary on the values of $w_1$ and $w_2$. 
+  If this block took on the value of 1 there would have to be upper bounds on the weights to make sure the block was chosen during one-step look-ahead)
+
+\item Can we represent the actual optimal values $V^*$ for grid (A)
+  using these two features?  Why or why not?
+
+  No. 
+  This can be seen by looking at the answer for the previous problem that enumerates the approximated values for each state $s = (x, y)$ for grid (A).
+  Using the two features the approximated value for state (0,0) will always be 0 and cannot be the true optimal value of 0.0625 regardless of values of $w_1$ and $w_2$.
+
+\clearpage
+
+\item For each of the feature sets listed below, state which (if any)
+  of the grid MDPs above can be 'solved', in the sense that we can
+  express some (possibly non-optimal) values which produce optimal
+  one-step look-ahead policies.
+
+  \begin{enumerate}
+
+  \item $f_1(x, y) = x$ and $f_2(x, y) = y$.
+
+  Using information from 3 for the approximate value of each state.
+
+  Grid (A) can be ``solved'' with $w_1 = w_2 > 0$. 
+  
+  \item For each $(i, j)$, a feature $f_{i,j}(x, y) = 1$ if $(x, y) = (i, j)$, 0 otherwise.
+
+  For each state $s = (x, y)$: 
+  \begin{itemize}
+    \item (0,0) = $w_{0,0}$
+    \item (1,0) = $w_{1,0}$
+    \item (0,1) = $w_{0,1}$
+    \item (2,0) = $w_{2,0}$
+    \item (1,1) = $w_{1,1}$
+    \item (0,2) = $w_{0,2}$
+    \item (2,1) = $w_{2,1}$
+    \item (1,2) = $w_{1,2}$
+    \item (2,2) = $w_{2,2}$
+  \end{itemize}
+
+  Grid (A), grid (B), grid (C) can be ``solved'' with $w_{i,j} = V^*((i,j))$.
+  This is because each grid square value is approximated as the corresponding $w_{i,j}$ thus if the weight takes on the optimal value then the optimal policy can be produced using one-step look-ahead policies. (It is likely other non-optimal values can also produce the optimal policy). % The approximate value of each grid square is just a weight value that is exclusively used for that grid square, thus weight values of the optimal values will give the optimal policy and also the optimal value.
+
+  \item $f_1(x, y) = (x - 1)^2$, $f_2(x, y) = (y - 1)^2$, and $f_3(x, y) = 1$.
+
+  For each state $s = (x, y)$: 
+  \begin{itemize}
+    \item (0,0) = $w_1 + w_2 + w_3$
+    \item (1,0) = $w_2 + w_3$
+    \item (0,1) = $w_1 + w_3$
+    \item (2,0) = $w_1 + w_2 + w_3$
+    \item (1,1) = $w_3$
+    \item (0,2) = $w_1 + w_2 + w_3$
+    \item (2,1) = $w_1 + w_3$
+    \item (1,2) = $w_2 + w_3$
+    \item (2,2) = $w_1 + w_2 + w_3$
+  \end{itemize}
+
+  Grid (C) can be ``solved'' with $w_1 < 0$, $w_2 < 0$.
+
+  \end{enumerate}
+
+\end{enumerate}
+
+\end{document}
+
+
