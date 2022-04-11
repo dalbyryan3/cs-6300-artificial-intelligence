@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\newcommand{\indep}{\perp\!\!\!\perp}
+
+\begin{document}
+
+\begin{center}
+{\bf CS 6300} \hfill {\large\bf HW07: Bayes Nets I \hfill April 5, 2022}
+\end{center}
+
+\section{D-Separation}
+
+You missed the Artificial Intelligence Exam! When you try to explain to your professor your excuses for 
+missing the exam, he stops you.  He offers to give you a grade based on your performance of mapping
+your excuses and determining the D-separation of the excuses and the events associated with them. 
+You draw out the events as a Bayes net seen above.  You must now answer the following questions
+about the net to see what your grade for the exam you missed!
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{excuses.eps}
+\end{center}
+
+\noindent 
+Consider the following pairs of variables to answer the questions below:
+\newline\newline
+\centerline{(a) $GS$ and $OA$  ;  (b) $DA$ and $MA$  ;  (c) $LP$ and $FD$  ;  (d) $TC$ and $MA$  ;  (e) $BB$ and $ME$}
+
+Given the stated evidence, list the variables that are independent or conditionally independent.
+
+\begin{enumerate}
+
+	\item (4 points) No information (even the evidence that you missed the exam).
+
+	\item (4 points) $MA$ is observed.
+
+	\item (4 points) $BB$ is observed.
+
+	\item (4 points) $LP$ is observed.
+
+	\item (4 points) $TC$ is observed.
+
+	\item (4 points) $LP$  and $OA$ are observed.
+
+	\item (4 points) $ME$ is observed.
+
+\end{enumerate}
+
+\clearpage
+
+\section{Inference by Enumeration}
+
+\begin{center}
+\includegraphics[width=5in]{enumeration.eps}
+\end{center}
+
+\begin{enumerate}
+
+\item What is the expression for $P(A,b,C, \sim d,E,f)$ given the structure
+  of this Bayes' net and conditional probability tables?
+
+\item Form the joint distribution  $P(A,b,C, \sim d,E,f)$ using factors.  Please give the
+  details of your derivation.
+
+\item Solve for the query $P(C | b, \sim d, f)$.
+
+\end{enumerate}
+
+\end{document}
+
+
