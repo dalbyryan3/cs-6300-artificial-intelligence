@@ -113,7 +113,151 @@ invent music.
 
 \item Write the formula to compute $P(+m | +d, +w)$ using variable elimination.
 
+$P(M|+d,+w)$ will be found using variable elimination. 
+
+Note $\times$ denotes pairwise multiplication.
+Also note that not just $P(+m|+d,+w)$ was found since $P(M|+d,+w)$ must be known to compute the normalization factor $\alpha$.
+\[
+  P(M|+d,+w) = \alpha P(M,+d,+w) = \alpha \sum_C \sum_T P(C,M,T,+d,+w)
+\]
+\[
+  P(M|+d,+w) = \alpha \sum_C \sum_T P(M|+w) P(T|+w) P(+d|C,M,T) P(+w) P(C)
+\]
+\[
+  P(M|+d,+w) = \alpha P(+w) P(M|+w) \sum_C \sum_T P(T|+w) P(+d|C,M,T) P(C)
+\]
+
+In terms of initial factors
+\[
+  P(M|+d,+w) = \alpha f_1 \times f_2(M) \times \sum_C \sum_T f_3(T) \times f_4(C,M,T) \times f_5(C)
+\]
+
+where $f_1 = P(+w)$, $f_2(M) = P(M|+w)$, $f_3(T) = P(T|+w)$, $f_4(C,M,T) = P(+d|C,M,T)$, and $f_5(C) = P(C)$ 
+
+Then joining and marginalizing factors as follows 
+\[
+  f_6(M) = \sum_C \sum_T f_3(T) \times f_4(C,M,T) \times f_5(C)
+\]
+\begin{gather}
+  f_6(M) = f_3(+t) f_4(+c,M,+t) f_5(+c) + f_3(-t) f_4(+c,M,-t) f_5(+c) + \\
+  f_3(+t) f_4(-c,M,+t) f_5(-c) + f_3(-t) f_4(-c,M,-t) f_5(-c)
+\end{gather}
+\[
+  f_7(M) = f_2(M) \times f_6(M)
+\]
+\[
+  f_8(M) = f_1 \times f_7(M)
+\]
+
+Gives
+\[
+  P(M|+d,+w) = \alpha f_8(M)
+\]
+
+
 \item Now compute $P(+m | +d, +w)$.
+
+\[
+  f_1 = 0.9
+\]
+
+\begin{center}
+  \begin{tabular}{|c|c|}
+    \hline
+    $M$ & $f_2(M)$ \\
+    \hline
+    $+m$ & 0.8 \\
+    \hline
+    $-m$ & 0.2 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $T$ & $f_3(T)$ \\
+    \hline
+    $+t$ & 0.7 \\
+    \hline
+    $-t$ & 0.3 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    $C$ & $M$ & $T$ & $f_4(C,M,T)$ \\
+    \hline
+    $+c$ & $+m$ & $+t$ & 0.9 \\
+    \hline
+    $+c$ & $+m$ & $-t$ & 0.8 \\
+    \hline
+    $+c$ & $-m$ & $+t$ & 0.8 \\
+    \hline
+    $+c$ & $-m$ & $-t$ & 0.2 \\
+    \hline
+    $-c$ & $+m$ & $+t$ & 0.8 \\
+    \hline
+    $-c$ & $+m$ & $-t$ & 0.5 \\
+    \hline
+    $-c$ & $-m$ & $+t$ & 0.6 \\
+    \hline
+    $-c$ & $-m$ & $-t$ & 0.1 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $C$ & $f_5(M)$ \\
+    \hline
+    $+c$ & 0.5 \\
+    \hline
+    $-c$ & 0.5 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $M$ & $f_6(M)$ \\
+    \hline
+    $+m$ & 0.79 \\
+    \hline
+    $-m$ & 0.535 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $M$ & $f_7(M)$ \\
+    \hline
+    $+m$ & 0.632 \\
+    \hline
+    $-m$ & 0.107 \\
+    \hline
+  \end{tabular}
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $M$ & $f_8(M)$ \\
+    \hline
+    $+m$ & 0.5688 \\
+    \hline
+    $-m$ & 0.0963 \\
+    \hline
+  \end{tabular}
+
+  Normalizing by $\alpha = 1.5035$
+
+  \begin{tabular}{|c|c|}
+    \hline
+    $M$ & $P(M|+d,+w)$ \\
+    \hline
+    $+m$ & 0.855 \\
+    \hline
+    $-m$ & 0.145 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+Thus $P(+m|+d,+w) = 0.855$.
 
 \end{enumerate}
 
@@ -143,6 +287,19 @@ W  & C  & M  & T  & D  \\ \hline
 \item Based on rejection sampling using the samples above, what is the
   answer to your query $P(+m | +d, +w)$?
 
+Given that we have sampled already, we just reject/ignore all samples without $D=+d$ and $W=+w$.
+
+Looking at the remaining samples: 
+$$\begin{array}{|c|c|c|c|c|} \hline
+W  & C  & M  & T  & D  \\ \hline
++w & +c & +m & -t & +d \\
++w & +c & -m & +t & +d \\
++w & +c & +m & +t & +d \\ \hline
+\end{array}$$
+
+We have 2 counts of $+m$ and 1 count of $-m$ thus we normalize by $\alpha = \frac{1}{3}$. 
+We get our estimate of $P(+m|+d,+w) = \frac{2}{3} \approx 0.667$.
+
 \item While your sampling method has worked fairly well in many cases,
   for rare cases (like a race that doesn't write) your results
   are less accurate as rejection sampling rejects almost all of the
@@ -165,16 +322,22 @@ Complete the following tables with the four samples.
 
 $$\begin{array}{|c|c|c|c|c|c|} \hline
 W  & C  & M  & T  & D  & \hbox{weight} \\ \hline
--w &    & +m &    & -d & \\
--w &    & -m &    & -d & \\
--w &    & -m &    & -d & \\
--w &    & +m &    & -d & \\ \hline
+-w & +c & +m & +t & -d & (0.1)(0.1)=0.01\\
+-w & +c & -m & -t & -d & (0.1)(0.8)=0.08\\
+-w & -c & -m & +t & -d & (0.1)(0.4)=0.04\\
+-w & +c & +m & +t & -d & (0.1)(0.1)=0.01\\ \hline
 \end{array}$$
 
 \item For each of these samples, indicate its weight in the same table.
 
+See the table.
+
 \item Compute the answer to your query, $P(+m | -w, -d)$, using
   likelihood weighting with these samples.
+
+\[
+  P(+m|-w,-d) = \frac{0.01+0.01}{0.01+0.08+0.04+0.01} = 0.143
+\]
 
 \end{enumerate}
 
