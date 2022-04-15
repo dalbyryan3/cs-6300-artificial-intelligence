@@ -75,7 +75,12 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        total_values_sum = self.total()
+        if total_values_sum == 0:
+            return
+        norm_factor = 1.0/total_values_sum
+        for key in self:
+            self[key] *= norm_factor
 
     def sample(self):
         """
@@ -99,7 +104,14 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        total_values_sum = self.total()
+        random_sum_choice = random.random()*total_values_sum
+        # As of python 3.6 dictionaries maintain insertion order thus will loop until out sum is greater than the random_sum_choice
+        current_sum = 0
+        for key in self:
+            current_sum += self[key]
+            if current_sum >= random_sum_choice:
+                return key
 
 
 class InferenceModule:
