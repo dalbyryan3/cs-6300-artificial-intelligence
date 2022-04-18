@@ -180,8 +180,19 @@ class InferenceModule:
         """
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # Special case for jail
+        # If sensor says in jail position, will make sure it is true and return 1 if so or 0 otherwise
+        if noisyDistance is None: 
+            if ghostPosition == jailPosition:
+                return 1
+            else:
+                return 0
+
+        # If sensor doesn't say in jail position will make sure we aren't actually in the jail position, if we are then we return 0
+        if ghostPosition == jailPosition:
+            return 0
+        trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+        return busters.getObservationProbability(noisyDistance, trueDistance)
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -289,8 +300,9 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-
+        for position in self.allPositions:
+            # posterior = likelihood * prior
+            self.beliefs[position] *= self.getObservationProb(observation, gameState.getPacmanPosition(), position, self.getJailPosition())
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
@@ -303,7 +315,17 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+
+        # P(position, last position) = P(position | last position) * P(last position)
+        # P(position) = sum over last position of P(position, last position) 
+        newBeliefs = DiscreteDistribution() 
+        for lastPosition in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, lastPosition) # P(position | last position)
+            lastPositionBelief = self.beliefs[lastPosition] # P(last position)
+            for position in newPosDist: # Marginalize as we loop for lastPosition in self.allPositions (are building new beliefs as we go)
+                newBeliefs[position] += (newPosDist[position] * lastPositionBelief)  # (Adding a P(position, last position) contribution to marginalization, in the end for a given position will have summed over each last position)
+
+        self.beliefs = newBeliefs
 
     def getBeliefDistribution(self):
         return self.beliefs
