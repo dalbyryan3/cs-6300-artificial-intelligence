@@ -301,8 +301,9 @@ class ExactInference(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         for position in self.allPositions:
-            # posterior = likelihood * prior
+            # posterior = constant * likelihood * prior (constant can be implicitly found and then applied as scaling through normalization since we are doing exact inference and are looking at a distribution over all positions)
             self.beliefs[position] *= self.getObservationProb(observation, gameState.getPacmanPosition(), position, self.getJailPosition())
+        
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
@@ -352,7 +353,9 @@ class ParticleFilter(InferenceModule):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        for i in range(self.numParticles):
+            selectedIdx = i % len(self.legalPositions)
+            self.particles.append(self.legalPositions[selectedIdx])
 
     def observeUpdate(self, observation, gameState):
         """
@@ -367,7 +370,19 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        beliefs = self.getBeliefDistribution()
+        for ghostPositionParticle in beliefs:
+            beliefs[ghostPositionParticle] *= self.getObservationProb(observation, gameState.getPacmanPosition(), ghostPositionParticle, self.getJailPosition())
+
+        # Handle special case
+        if beliefs.total() == 0:
+            self.initializeUniformly(gameState)
+            return
+        
+        # Resample from weighted distribution
+        self.particles = []
+        for _ in range(self.numParticles):
+            self.particles.append(beliefs.sample())
 
     def elapseTime(self, gameState):
         """
@@ -375,7 +390,12 @@ class ParticleFilter(InferenceModule):
         gameState.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        lastGhostPositionParticles = self.particles.copy()
+        self.particles = []
+        # Adding new particles sampled from newPosDist (representing the conditional distribution P(position | last position) which is proportional to P(position, last position) and in essence is multiplied (a "weight" applied) by a sort of P(last position) as a consequence of the last particles being sampled themselves) for each last position to the same particle list is like marginalizing (summing over) last position of P(position, last position)
+        for lastGhostPositionParticle in lastGhostPositionParticles:
+            newPosDist = self.getPositionDistribution(gameState, lastGhostPositionParticle)
+            self.particles.append(newPosDist.sample())
 
     def getBeliefDistribution(self):
         """
@@ -386,8 +406,12 @@ class ParticleFilter(InferenceModule):
         This function should return a normalized distribution.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        belief = DiscreteDistribution()
 
+        for particle in self.particles:
+            belief[particle] += 1.0/self.numParticles
+
+        return belief
 
 class JointParticleFilter(ParticleFilter):
     """
@@ -414,7 +438,13 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        particles_tup_list = list(itertools.product(self.legalPositions, repeat=self.numGhosts))
+        random.shuffle(particles_tup_list)
+        for i in range(self.numParticles):
+            # There are len(particles_tup_list) = len(self.legalPositions)^(self.numGhosts) different(unique) particles
+            selectedIdx = i % len(particles_tup_list)
+            self.particles.append(particles_tup_list[selectedIdx])
+
 
     def addGhostAgent(self, agent):
         """
