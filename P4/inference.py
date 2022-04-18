@@ -392,7 +392,7 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         lastGhostPositionParticles = self.particles.copy()
         self.particles = []
-        # Adding new particles sampled from newPosDist (representing the conditional distribution P(position | last position) which is proportional to P(position, last position) and in essence is multiplied (a "weight" applied) by a sort of P(last position) as a consequence of the last particles being sampled themselves) for each last position to the same particle list is like marginalizing (summing over) last position of P(position, last position)
+        # Adding new particles sampled from newPosDist (representing the conditional distribution P(position | last position) which is proportional to P(position, last position) and in essence is multiplied (a "weight" applied) by a sort of P(last position) as a consequence of the last particles being sampled themselves) for each last position to the same particle list is like marginalizing (summing over) last position of P(position, last position) to get (an estimate for) P(position)
         for lastGhostPositionParticle in lastGhostPositionParticles:
             newPosDist = self.getPositionDistribution(gameState, lastGhostPositionParticle)
             self.particles.append(newPosDist.sample())
@@ -477,7 +477,20 @@ class JointParticleFilter(ParticleFilter):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        beliefs = self.getBeliefDistribution()
+        for ghostPositionParticle in beliefs:
+            for i in range(self.numGhosts): # len(self.numGhosts) is the length of prior
+                beliefs[ghostPositionParticle] *= self.getObservationProb(observation[i], gameState.getPacmanPosition(), ghostPositionParticle[i], self.getJailPosition(i))
+
+        # Handle special case
+        if beliefs.total() == 0:
+            self.initializeUniformly(gameState)
+            return
+        
+        # Resample from weighted distribution
+        self.particles = []
+        for _ in range(self.numParticles):
+            self.particles.append(beliefs.sample())
 
     def elapseTime(self, gameState):
         """
@@ -490,8 +503,11 @@ class JointParticleFilter(ParticleFilter):
 
             # now loop through and update each entry in newParticle...
             "*** YOUR CODE HERE ***"
-            raiseNotDefined()
-
+            # This is just like elapseTime in the standard particle filter but now we are estimating the P(position ghost 1, ..., position ghost N) joint distribution rather than just P(position) for a single ghost
+            # For exact inference would have to sum out/marginalize over all last ghost positions
+            for i in range(self.numGhosts):
+                newPosDist = self.getPositionDistribution(gameState, oldParticle, i, self.ghostAgents[i])
+                newParticle[i] = newPosDist.sample()
             """*** END YOUR CODE HERE ***"""
             newParticles.append(tuple(newParticle))
         self.particles = newParticles
