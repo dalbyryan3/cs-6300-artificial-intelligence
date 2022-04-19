@@ -504,7 +504,6 @@ class JointParticleFilter(ParticleFilter):
             # now loop through and update each entry in newParticle...
             "*** YOUR CODE HERE ***"
             # This is just like elapseTime in the standard particle filter but now we are estimating the P(position ghost 1, ..., position ghost N) joint distribution rather than just P(position) for a single ghost
-            # For exact inference would have to sum out/marginalize over all last ghost positions
             for i in range(self.numGhosts):
                 newPosDist = self.getPositionDistribution(gameState, oldParticle, i, self.ghostAgents[i])
                 newParticle[i] = newPosDist.sample()
