@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.9in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{-0.05in}
+\setlength{\headsep}{0.0in}
+
+\newcommand{\indep}{\perp\!\!\!\perp}
+
+\begin{document}
+
+\begin{center}
+{\bf CS 6300} \hfill {\large\bf HW09: VPI and HMMs \hfill Due April 19, 2022}
+\end{center}
+
+\noindent
+Please use the \LaTeX\ template to produce your writeups. See the
+Homework Assignments page on the class website for details.  Hand in
+via gradescope.
+
+\section{Decision Networks and VPI}
+
+A used car buyer can decide to carry out various tests with various
+costs (e.g., kick the tires, take the car to a qualified mechanic) and
+then, depending on the outcome of the tests, decide which car to buy.
+We will assume that the buyer is deciding whether to buy the car and
+that there is time to carry out at most one test which costs \$50 and
+which can help to figure out the quality of the car.  A car can be in
+good shape (of good quality Q = +q) or in bad shape (of bad quality
+Q=-q), and the test might help to indicate what shape the car is in.
+There are only two outcomes for the test T: pass (T=pass) or fail
+(T=fail).  The car costs \$1,500, and its market value is \$2,000 if
+it is in good shape; if not, \$700 in repairs will be needed to make
+it in good shape.  The buyer's estimate is that the car has 70\%
+chance of being in good shape.
+
+\begin{enumerate}
+
+\item  Draw the decision network that represents this problem.
+
+\item  Calculate the expected net gain from buying the car, given no test.
+
+\item Tests can be described by the probability that the car will pass
+  or fail the test given that the car is in good or bad shape. We have
+  the following information:
+
+\begin{eqnarray*}
+P(T = pass | Q = +q) &=&  0.9 \\
+P(T = pass | Q = -q) &=&  0.2
+\end{eqnarray*}
+
+Calculate the probability that the car will pass (or fail) its test,
+and then the probability that it is in good (bad) shape given each
+possible test outcome.
+
+\item Calculate the optimal decisions given either a pass or a fail,
+  and their expected utilities.
+
+\item Calculate the value of (perfect) information of the test. Should
+  the buyer pay for a test?
+
+\end{enumerate}
+
+\clearpage
+
+\section{HMMs}
+
+You sometimes get colds, which make you sneeze. You also get
+allergies, which make you sneeze. Sometimes you are well, which
+doesn't make you sneeze (much). You decide to model the process using
+the following HMM, with hidden states $X \in \{well, allergy, cold\}$ and
+observations $E \in \{sneeze, quiet\}$:
+
+\begin{center}
+\includegraphics[height=4in]{sneeze.eps}
+\end{center}
+
+Note that colds are ``stickier'' in that you tend to have them for
+multiple days, while allergies come and go on a quicker time
+scale. However, allergies are more frequent. Assume that on the first
+day, you are well.
+
+\begin{enumerate}
+
+\item What is the posterior distribution over your state on day 2
+  ($X_2$) if $E_1 = quiet$, $E_2 = sneeze$?
+
+\item What is the posterior distribution over your state on day 3
+  ($X_3$) if $E_1 = quiet$, $E_2 = sneeze$, $E_3 = sneeze$?
+
+\item What is the Viterbi (most likely) sequence for the observation
+  sequence {\it quiet, sneeze, sneeze}?
+
+\end{enumerate}
+
+\end{document}
+
+
